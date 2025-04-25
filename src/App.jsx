@@ -14,10 +14,6 @@ function App() {
   const [filters, setFilters] = useState({
     consultationType: '', // 'video' or 'clinic'
     specialties: [],
-    languages: [],
-    experience: null, // { min: number, max: number }
-    fees: null, // { min: number, max: number }
-    availability: '', // 'today', 'tomorrow', 'week'
     sortBy: ''
   });
 
@@ -35,8 +31,7 @@ function App() {
       introduction: doctor.doctor_introduction,
       videoConsult: doctor.video_consult,
       inClinic: doctor.in_clinic,
-      fullAddress: `${doctor.clinic.address.address_line1}, ${doctor.clinic.address.locality}, ${doctor.clinic.address.city}`,
-      availability: doctor.availability || ['today', 'tomorrow', 'week'] // Simulated availability
+      fullAddress: `${doctor.clinic.address.address_line1}, ${doctor.clinic.address.locality}, ${doctor.clinic.address.city}`
     }));
   }, []);
 
@@ -87,38 +82,6 @@ function App() {
       );
     }
 
-    // Apply language filters
-    if (filters.languages?.length > 0) {
-      filtered = filtered.filter(doctor =>
-        doctor.languages.some(language =>
-          filters.languages.includes(language)
-        )
-      );
-    }
-
-    // Apply experience filter
-    if (filters.experience) {
-      filtered = filtered.filter(doctor =>
-        doctor.experience >= filters.experience.min &&
-        doctor.experience <= filters.experience.max
-      );
-    }
-
-    // Apply fees filter
-    if (filters.fees) {
-      filtered = filtered.filter(doctor =>
-        doctor.fees >= filters.fees.min &&
-        doctor.fees <= filters.fees.max
-      );
-    }
-
-    // Apply availability filter
-    if (filters.availability) {
-      filtered = filtered.filter(doctor =>
-        doctor.availability.includes(filters.availability)
-      );
-    }
-
     // Apply sorting
     if (filters.sortBy === 'fees') {
       filtered.sort((a, b) => a.fees - b.fees);
@@ -135,10 +98,6 @@ function App() {
     if (searchQuery) params.set('search', searchQuery);
     if (filters.consultationType) params.set('type', filters.consultationType);
     if (filters.specialties.length) params.set('specialties', filters.specialties.join(','));
-    if (filters.languages?.length) params.set('languages', filters.languages.join(','));
-    if (filters.experience) params.set('experience', `${filters.experience.min}-${filters.experience.max}`);
-    if (filters.fees) params.set('fees', `${filters.fees.min}-${filters.fees.max}`);
-    if (filters.availability) params.set('availability', filters.availability);
     if (filters.sortBy) params.set('sort', filters.sortBy);
     
     window.history.pushState({}, '', `?${params.toString()}`);
@@ -160,6 +119,7 @@ function App() {
     setFilters(newFilters);
   }, []);
 
+  
   const allSpecialties = [...new Set(doctors.flatMap(doctor => doctor.specialties))];
 
   return (
